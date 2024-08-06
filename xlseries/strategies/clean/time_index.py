@@ -19,6 +19,7 @@ from pprint import pprint
 from pprint import pformat
 from openpyxl.utils import get_column_letter, column_index_from_string
 import datetime
+from xlseries import shared
 
 from xlseries.strategies.clean.parse_time import DayOutOfRange, MonthOutOfRange
 from xlseries.strategies.clean.parse_time import NoTimeValue
@@ -149,11 +150,9 @@ class BaseCleanTiStrategy(object):
                     # first quarter... TODO: better treatment for multifreq
                     if curr_time == last_time and len(p["frequency"]) == 1:
                         raise SameTimeValue(curr_time, last_time)
-
                     # write the clean value to the spreadsheet
                     write_time_cell.value = curr_time.datetime
                     last_time = curr_time
-
                 # this is the only case that _must_be_time_value is not
                 # expected to avoid before calling _parse_time, it's a mistake
                 # of the excel designers in the time index
@@ -225,6 +224,7 @@ class BaseCleanTiStrategy(object):
 
         if alignment == "vertical":
             end = end or cls._get_row_boundary(ws, time_header_coord, ini)
+            shared.table_end = end - 1
             for row in range(ini, end + 1):
                 curr_time = cls._get_time_value(ws, time_header_coord,
                                                 f_row=row)
@@ -232,7 +232,7 @@ class BaseCleanTiStrategy(object):
                                                 f_row=row + 1)
                 col = cls._time_header_cell(ws, time_header_coord).column
                 write_time_cell = ws[col + str(row)]
-
+                #print (curr_time, next_time, write_time_cell)
                 yield (curr_time, next_time, write_time_cell)
 
         elif alignment == "horizontal":
@@ -476,7 +476,33 @@ class BaseSingleTable():
     @classmethod
     def _get_row_boundary(cls, ws, time_header_coord, ini):
         """Returns the pressumed last row of a column."""
-        return ws.max_row
+        i = 1
+        while ws[time_header_coord].offset(row=i).value:
+            cell_value = ws[time_header_coord].offset(row=i).value
+            th_fragments=["IT","INDICE_TIEMPO", "ICE_TIEMPO"]
+            if any(fragment in str(cell_value) for fragment in th_fragments):
+                break
+            else:
+                i += 1
+        boundary_row = ws[time_header_coord].offset(row=i).row
+        #found_non_empty = False
+        th_cell = ws[time_header_coord]
+        th_column = column_index_from_string(th_cell.column)
+
+        for row in range(boundary_row - 1, ini - 1, -1):
+            if any(ws.cell(row=row, column=col).value for col in range(th_column + 1, ws.max_column + 1)):
+                break
+            else:
+                boundary_row = row
+            #for col in range(th_column + 1, ws.max_column + 1):
+                #if ws.cell(row=row, column=col).value:
+                   # found_non_empty = True
+                    #break
+            #if found_non_empty:
+                #break
+            #else:
+                #boundary_row = row
+        return boundary_row
 
     @classmethod
     def _get_column_boundary(cls, ws, time_header_coord, ini):

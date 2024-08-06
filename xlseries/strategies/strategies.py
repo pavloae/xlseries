@@ -22,6 +22,7 @@ import xlseries.strategies.get.data as get_data_strategies
 import xlseries.strategies.get.period_range as get_pr_strategies
 from xlseries.utils.data_frame import compare_data_frames
 from xlseries.utils.xl_methods import make_ws_copy
+from xlseries import shared
 
 
 # EXCEPTIONS
@@ -198,7 +199,7 @@ Last attempt was:
         # if time index is multicolumn, only one time index is allowed
         if params["time_multicolumn"][0]:
             end = cls._clean_time_index(ws, params[0])
-
+            shared.end = end
             # if not provided, the end is when time index finish
             if not params["data_ends"][0]:
                 params["data_ends"] = end
@@ -214,6 +215,7 @@ Last attempt was:
                 if time_header_coord not in time_indexes:
                     time_indexes.add(time_header_coord)
                     end = cls._clean_time_index(ws, params[i_series])
+                    shared.end = end
                     assert end, "Clean time index should have an end."
                     time_indexes_ends[time_header_coord] = end
 

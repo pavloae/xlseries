@@ -22,6 +22,7 @@ from .utils.xl_methods import make_wb_copy
 from .strategies.discover.parameters import Parameters
 from .utils.xl_methods import open_xls_as_xlsx
 from .utils.path_finders import get_package_dir
+from xlseries import shared
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -130,9 +131,20 @@ class XlSeries(object):
                 self.params[ws_name] = params
 
                 if isinstance(dfs, list) and len(dfs) == 1:
-                    return dfs[0]
+                    diccionario = {
+                        "df": dfs[0],
+                        "table_end": shared.table_end,
+                        "end": shared.end,
+                    }
+                    return diccionario
                 else:
-                    return dfs
+                    diccionario = {
+                        "df": dfs,
+                        "table_end": shared.table_end,
+                        "end": shared.end,
+                    }
+                    return diccionario
+
 
     @staticmethod
     def _sanitize_ws_name(ws_name_orig, ws_names):
