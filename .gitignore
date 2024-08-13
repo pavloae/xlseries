@@ -48,3 +48,5 @@ PERSONAL_TODO.md
 .DS_Store
 Example use case-checkpoint.ipynb
 .ipynb_checkpoints
+
+.idea

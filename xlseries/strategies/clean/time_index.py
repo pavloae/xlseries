@@ -150,9 +150,11 @@ class BaseCleanTiStrategy(object):
                     # first quarter... TODO: better treatment for multifreq
                     if curr_time == last_time and len(p["frequency"]) == 1:
                         raise SameTimeValue(curr_time, last_time)
+
                     # write the clean value to the spreadsheet
                     write_time_cell.value = curr_time.datetime
                     last_time = curr_time
+
                 # this is the only case that _must_be_time_value is not
                 # expected to avoid before calling _parse_time, it's a mistake
                 # of the excel designers in the time index
@@ -232,7 +234,7 @@ class BaseCleanTiStrategy(object):
                                                 f_row=row + 1)
                 col = cls._time_header_cell(ws, time_header_coord).column
                 write_time_cell = ws[col + str(row)]
-                #print (curr_time, next_time, write_time_cell)
+
                 yield (curr_time, next_time, write_time_cell)
 
         elif alignment == "horizontal":

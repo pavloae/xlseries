@@ -629,7 +629,6 @@ class ParseComposedQuarter4(BasePEG, BaseComposedQuarter):
 
     @classmethod
     def make_parsley_grammar(cls):
-
         """Return a parsley parsing expression grammar."""
         return parsley.makeGrammar("""
                 separator = anything:x ?(x in "-/.T ")
